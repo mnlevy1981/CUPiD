@@ -43,8 +43,8 @@ def read_cesm_smb(path, case_name, last_year, climo_nyears, params):
     for k in range(len(climo_out["time"])):
         climo_out.data[k, :, :] = np.where(
             params["mask"],
-            0,
             climo_out.isel(time=k).data,
+            0,
         )
     print("number of years used in climatology = ", len(climo_out["time"]))
     return climo_out

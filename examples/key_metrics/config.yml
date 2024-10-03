@@ -122,8 +122,9 @@ compute_notebooks:
       LIWG_SMB_diagnostic:
         parameter_groups:
           none:
-            obs_path: '/glade/u/home/gunterl/obs_diagnostic_cesm/'
+            glc_inputdir: '/glade/campaign/cesm/development/cross-wg/diagnostic_framework/SMB_data'
             obs_name: 'GrIS_MARv3.12_climo_1960_1999.nc'
+            glc_maskfile: 'greenland_4km_init_mask.nc'
             climo_nyears: 40
 
 #    ice:

@@ -115,8 +115,25 @@ def run(
                 # -----
                 if isinstance(timeseries_params["case_name"], list):
                     ts_input_dirs = []
-                    for cname in timeseries_params["case_name"]:
-                        ts_input_dirs.append(global_params["CESM_output_dir"]+"/"+cname+f"/{component}/hist/")
+                    for n, cname in enumerate(timeseries_params["case_name"]):
+                        if "hist_dirs" in timeseries_params:
+                            ts_input_dirs.append(
+                                os.path.join(
+                                    timeseries_params["hist_dirs"][n],
+                                    cname,
+                                    component,
+                                    "hist",
+                                ),
+                            )
+                        else:
+                            ts_input_dirs.append(
+                                os.path.join(
+                                    global_params["CESM_output_dir"],
+                                    cname,
+                                    component,
+                                    "hist",
+                                ),
+                            )
                 else:
                     ts_input_dirs = [
                         global_params["CESM_output_dir"] + "/" +
@@ -143,20 +160,27 @@ def run(
                 else:
                     if isinstance(timeseries_params["case_name"], list):
                         ts_output_dirs = []
-                        for cname in timeseries_params["case_name"]:
-                            ts_output_dirs.append(
-                                os.path.join(
-                                        global_params["CESM_output_dir"],
-                                        cname,
-                                        f"{component}", "proc", "tseries",
-                                ),
-                            )
+                        for n, cname in enumerate(timeseries_params["case_name"]):
+                            if "hist_dirs" in timeseries_params:
+                                ts_output_dirs.append(
+                                    os.path.join(
+                                            timeseries_params["hist_dirs"][n], cname, component, "proc", "tseries",
+                                    ),
+                                )
+                            else:
+                                ts_output_dirs.append(
+                                    os.path.join(
+                                            global_params["CESM_output_dir"],
+                                            cname,
+                                            component, "proc", "tseries",
+                                    ),
+                                )
                     else:
                         ts_output_dirs = [
                             os.path.join(
                                     global_params["CESM_output_dir"],
                                     timeseries_params["case_name"],
-                                    f"{component}", "proc", "tseries",
+                                    component, "proc", "tseries",
                             ),
                         ]
                 # -----
