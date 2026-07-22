@@ -41,19 +41,34 @@ computation_config:
 # All parameters under global_params get passed to all the notebooks
 
 global_params:
-  case_name: 'b.e30_alpha07c_cesm.B1850C_LTso.ne30_t232_wgx3.232'
-  base_case_name: 'b.e30_alpha07c_cesm.B1850C_LTso.ne30_t232_wgx3.228'
-  case_nickname: 'BLT1850_232'
-  base_case_nickname: 'BLT1850_228'
-  CESM_output_dir: /glade/campaign/cesm/development/cross-wg/diagnostic_framework/CESM_output_for_testing
-  start_date: '0001-01-01'
-  end_date: '0021-01-01'
-  climo_start_year: 11
-  climo_end_year: 21
-  base_start_date: '0001-01-01'
-  base_end_date: '0045-01-01'
-  base_climo_start_year: 36
-  base_climo_end_year: 45
+  case_names:
+    - 'b.e30_alpha08b.B1850C_LTso.ne30_t232_wgx3.323'
+    - 'b.e30_alpha08b.B1850C_LTso.ne30_t232_wgx3.328'
+    - 'b.e30_alpha08b.B1850C_LTso.ne30_t232_wgx3.327'
+  case_nicknames:
+    - 'BLT1850_323'
+    - 'BLT1850_328'
+    - 'BLT1850_327'
+  CESM_output_dir:
+    - '/glade/campaign/cesm/development/cross-wg/diagnostic_framework/CESM_output_for_testing'
+    - '/glade/campaign/cesm/development/cross-wg/diagnostic_framework/CESM_output_for_testing'
+    - '/glade/campaign/cesm/development/cross-wg/diagnostic_framework/CESM_output_for_testing'
+  start_dates:
+    - '0001-01-01'
+    - '0001-01-01'
+    - '0001-01-01'
+  end_dates:
+    - '0101-01-01'
+    - '0061-01-01'
+    - '0113-01-01'
+  climo_start_years:
+    - 81
+    - 41
+    - 93
+  climo_end_years:
+    - 101
+    - 61
+    - 113
   obs_data_dir: '/glade/campaign/cesm/development/cross-wg/diagnostic_framework/CUPiD_obs_data'
   ts_dir: null # If this is set to null, it will default to CESM_output_dir; if you don't have permissions to write to CESM_output_dir, you can specify a directory such as your scratch arcive directory
   lc_kwargs:
@@ -61,20 +76,19 @@ global_params:
 
 timeseries:
   num_procs: 8
-  ts_done: [False, False]
-  overwrite_ts: [False, False]
-  case_name: ['b.e30_alpha07c_cesm.B1850C_LTso.ne30_t232_wgx3.232', 'b.e30_alpha07c_cesm.B1850C_LTso.ne30_t232_wgx3.228']
+  ts_done: [False, False, False]
+  overwrite_ts: [False, False, False]
   file_mode: 664
   dir_mode: 775
-  file group: cesm
+  file_group: cesm
   dir_group: cesm
 
   atm:
     vars: ['PSL']
     derive_vars: []
     hist_str: 'cam.h0a'
-    start_years: [1,1]
-    end_years: [21,45]
+    start_years: [1,1,1]
+    end_years: [101,61,113]
     level: 'lev'
     mapping_file: [Null, '/glade/campaign/cesm/cesmdata/inputdata/cpl/gridmaps/ne30pg3/map_ne30pg3_TO_fv0.9x1.25_blin.240826.nc']
 
@@ -83,40 +97,40 @@ timeseries:
     vars: ['SOILWATER_10CM','FSH_TO_COUPLER']
     derive_vars: []
     hist_str: 'clm2.h0a'
-    start_years: [1,1]
-    end_years: [21,45]
+    start_years: [1,1,1]
+    end_years: [101,61,113]
     level: 'lev'
 
   ocn:
     vars: []
     derive_vars: []
     hist_str: 'h.z'
-    start_years: [1,1]
-    end_years: [21,45]
+    start_years: [1,1,1]
+    end_years: [101,61,113]
     level: 'lev'
 
   ice:
     vars: ['aice','hi','hs']
     derive_vars: []
     hist_str: 'cice.h'
-    start_years: [1,1]
-    end_years: [21,45]
+    start_years: [1,1,1]
+    end_years: [101,61,113]
     level: 'lev'
 
   glc:
     vars: []
     derive_vars: []
     hist_str: 'initial_hist'
-    start_years: [1,1]
-    end_years: [21,45]
+    start_years: [1,1,1]
+    end_years: [101,61,113]
     level: 'lev'
 
   rof:
     vars: []
     derive_vars: []
     hist_str: 'h0'
-    start_years: [1,1]
-    end_years: [21,45]
+    start_years: [1,1,1]
+    end_years: [101,61,113]
     level: 'lev'
 
 compute_notebooks:
@@ -137,14 +151,16 @@ compute_notebooks:
       Global_PSL_NMSE_compare_obs_lens:
         parameter_groups:
           none:
-            regridded_output: False # it looks like output is already on f09 grid, didn't need to regrid time-series file
-            base_regridded_output: False
+            regridded_output:
+              - False # it looks like output is already on f09 grid, didn't need to regrid time-series file
+              - False
+              - False
             validation_path: 'atm/analysis_datasets/fv0.9x1.25/seasonal_climatology/nmse_validation/PSL/'
       ADF:
         kernel_name: cupid-infrastructure
         parameter_groups:
           none:
-            adf_root: ../../examples/key_metrics/ADF_output/
+            adf_root: ../../examples/328v327v323/ADF_output/
             key_plots: ["Surface_Wind_Stress_ANN_LatLon_Vector_Mean.png", "PRECT_ANN_LatLon_Mean.png", "PS_DJF_SHPolar_Mean.png", "TaylorDiag_ANN_Special_Mean.png"]
             compare_obs: False
         external_tool:
@@ -156,15 +172,17 @@ compute_notebooks:
             obs_data_loc: /glade/campaign/cgd/amp/amwg/ADF_obs
           analysis_scripts: ["amwg_table"]
           diag_cvdp_info:
-            cvdp_run: False # a bunch of warnings of convert being deprecated in IMv7 will be printed if turned on - will be fixed with CVDP update
+            cvdp_run: True
             cvdp_tar: False
-          regridded_output: False
-          base_regridded_output: False
+          regridded_output:
+            - False
+            - False
+            - False
       CVDP:
         kernel_name: cupid-infrastructure
         parameter_groups:
           none:
-            cvdp_root: ../../examples/key_metrics/CVDP_output/
+            cvdp_root: ../../examples/328v327v323/CVDP_output/
             key_plots: ["nino34.spatialcomp.djf1.png", "nino34.hov.elnino.png", "nino34.hov.lanina.png", "sst.stddev.djf.png", "nino34.monstddev.png"]
         external_tool:
           tool_name: 'CVDP'
@@ -183,7 +201,10 @@ compute_notebooks:
           none:
             hist_str: 'h0a'             # file tag, 'h0' or 'h0a'
             analysis_name: ""
-            grid_name: 'f09_f09_mosart' # ROF grid name
+            grid_name:  # ROF grid name
+              - 'f09_f09_mosart'
+              - 'f09_f09_mosart'
+              - 'f09_f09_mosart'
             climo_nyears: 10
             figureSave: False
       global_discharge_ocean_compare_obs:
@@ -191,7 +212,10 @@ compute_notebooks:
           none:
             hist_str: 'h0a'             # file tag, 'h0' or 'h0a'
             analysis_name: ""
-            grid_name: 'f09_f09_mosart' # ROF grid name
+            grid_name:  # ROF grid name
+              - 'f09_f09_mosart'
+              - 'f09_f09_mosart'
+              - 'f09_f09_mosart'
             climo_nyears: 10
             figureSave: False
 
@@ -214,7 +238,7 @@ compute_notebooks:
       ILAMB:
         parameter_groups:
           none:
-            ilamb_root: ../../examples/key_metrics/ILAMB_output
+            ilamb_root: ../../examples/328v327v323/ILAMB_output
             key_plots: ["EcosystemandCarbonCycle/GrossPrimaryProductivity/FLUXCOM/*_global_bias.png", "EcosystemandCarbonCycle/LeafAreaIndex/AVHRR/*1_global_bias.png", "EcosystemandCarbonCycle/GlobalNetEcosystemCarbonBalance/GCP/*_global_accumulate.png", "HydrologyCycle/Permafrost/Brown2002/*_global_bias.png"]
             print_table: True
         external_tool:
@@ -224,7 +248,7 @@ compute_notebooks:
         kernel_name: cupid-infrastructure
         parameter_groups:
           none:
-            ldf_root: ../../examples/key_metrics/LDF_output/
+            ldf_root: ../../examples/328v327v323/LDF_output/
             key_plots: ["GPP_ANN_LatLon_Mean.png",
                         "ELAI_ANN_LatLon_Mean.png",
                         "TOTECOSYSC_GlobalMean_ANN_TimeSeries_Mean.png",
@@ -240,10 +264,13 @@ compute_notebooks:
                               "global_mean_timeseries_lnd", "regional_climatology",
                               "regional_timeseries"]
           analysis_scripts: ["lmwg_table"]
-          base_regridded_output: False
+          regridded_output:
+            - False
+            - False
+            - False
           region_list: ["Global","N Hemisphere Land","S Hemisphere Land","Polar",
                         "Alaskan Arctic","Canadian Arctic",'Russian Arctic','Greenland',
-                        "Alaska",'Northwest Canada','Central Canada','Eastern Canda','Northern Europe','Western Siberia','Eastern Siberia',
+                        "Alaska",'Northwest Canada','Central Canada','Eastern Canada','Northern Europe','Western Siberia','Eastern Siberia',
                         'Western US','Central US','Eastern US','CONUS','Europe','Mediterranean','Central America',
                         'Amazonia','Central Africa','Indonesia','S America',
                         'Brazil','Sahel','Southern Africa','India','Indochina','Australia']

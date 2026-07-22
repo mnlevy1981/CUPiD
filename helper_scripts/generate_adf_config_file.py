@@ -32,6 +32,11 @@ def generate_adf_config(
     if not os.path.exists(os.path.join(cupid_config_loc, "config.yml")):
         raise KeyError(f"Can not find config.yml in {cupid_config_loc}")
 
+    helper_scripts_path = os.path.realpath(os.path.dirname(__file__))
+    adf_root = os.path.realpath(
+        os.path.join(helper_scripts_path, "..", "externals", "ADF"),
+    )
+
     with open(os.path.join(cupid_config_loc, "config.yml")) as c:
         c_dict = yaml.safe_load(c)
     with open(adf_template, encoding="UTF-8") as a:
@@ -40,154 +45,197 @@ def generate_adf_config(
     # read parameters from CUPID
     # use `get` to default to None
     CESM_output_dir = c_dict["global_params"]["CESM_output_dir"]
-    base_case_name = c_dict["global_params"]["base_case_name"]
-    test_case_name = c_dict["global_params"]["case_name"]
+    base_case_name = c_dict["global_params"]["case_names"][0]
+    test_case_names = c_dict["global_params"]["case_names"][1:]
     c_ts = c_dict["timeseries"]
-    ts_case_names = c_ts.get("case_name")
+    ts_case_names = c_dict["global_params"]["case_names"]
     ts_dir = c_dict["global_params"].get("ts_dir")
     if ts_dir is None:
         ts_dir = CESM_output_dir
-    ts_dir = os.path.join(ts_dir)
+    # ts_dir = os.path.join(ts_dir)
     if not ts_case_names:
         raise ValueError("CUPiD file does not have timeseries case_name array.")
 
     # Set case names for ADF config
-    a_dict["diag_cam_climo"]["cam_case_name"] = test_case_name
+    a_dict["diag_cam_climo"]["cam_case_name"] = test_case_names
     a_dict["diag_cam_baseline_climo"]["cam_case_name"] = base_case_name
-    a_dict["diag_cam_climo"]["case_nickname"] = c_dict["global_params"].get(
-        "case_nickname",
-        test_case_name,
+
+    a_dict["diag_cam_climo"]["case_nickname"] = c_dict["global_params"][
+        "case_nicknames"
+    ][1:]
+    a_dict["diag_cam_baseline_climo"]["case_nickname"] = c_dict["global_params"][
+        "case_nicknames"
+    ][0]
+
+    a_dict["diag_cam_climo"]["hist_str"] = [a_dict["diag_cam_climo"]["hist_str"]] * len(
+        test_case_names,
     )
-    a_dict["diag_cam_baseline_climo"]["case_nickname"] = c_dict["global_params"].get(
-        "base_case_nickname",
-        base_case_name,
-    )
+    a_dict["diag_cam_climo"]["calc_cam_climo"] = [
+        a_dict["diag_cam_climo"]["calc_cam_climo"],
+    ] * len(test_case_names)
+    a_dict["diag_cam_climo"]["cam_overwrite_climo"] = [
+        a_dict["diag_cam_climo"]["cam_overwrite_climo"],
+    ] * len(test_case_names)
+    a_dict["diag_cam_climo"]["cam_ts_done"] = [
+        a_dict["diag_cam_climo"]["cam_ts_done"],
+    ] * len(test_case_names)
+    a_dict["diag_cam_climo"]["cam_ts_save"] = [
+        a_dict["diag_cam_climo"]["cam_ts_save"],
+    ] * len(test_case_names)
+    a_dict["diag_cam_climo"]["cam_overwrite_ts"] = [
+        a_dict["diag_cam_climo"]["cam_overwrite_ts"],
+    ] * len(test_case_names)
 
     # TEST CASE HISTORY FILE PATH
-    a_dict["diag_cam_climo"]["cam_hist_loc"] = os.path.join(
-        CESM_output_dir,
-        test_case_name,
-        "atm",
-        "hist",
-    )
+    a_dict["diag_cam_climo"]["cam_hist_loc"] = [
+        os.path.join(
+            output_dir,
+            test_case_name,
+            "atm",
+            "hist",
+        )
+        for test_case_name, output_dir in zip(test_case_names, CESM_output_dir[1:])
+    ]
+
     # TEST CASE TIME SERIES FILE PATH
-    a_dict["diag_cam_climo"]["cam_ts_loc"] = os.path.join(
-        ts_dir,
-        test_case_name,
-        "atm",
-        "proc",
-        "tseries",
-    )
+    a_dict["diag_cam_climo"]["cam_ts_loc"] = [
+        os.path.join(
+            ts_dir_val,
+            test_case_name,
+            "atm",
+            "proc",
+            "tseries",
+        )
+        for test_case_name, ts_dir_val in zip(test_case_names, ts_dir[1:])
+    ]
+
     # TEST CASE CLIMO FILE PATH
-    a_dict["diag_cam_climo"]["cam_climo_loc"] = os.path.join(
-        ts_dir,
-        test_case_name,
-        "atm",
-        "proc",
-        "climo",
-    )
+    a_dict["diag_cam_climo"]["cam_climo_loc"] = [
+        os.path.join(
+            ts_dir_val,
+            test_case_name,
+            "atm",
+            "proc",
+            "climo",
+        )
+        for test_case_name, ts_dir_val in zip(test_case_names, ts_dir[1:])
+    ]
     # UPDATE PATHS FOR REGRIDDED DATA
     try:
-        if c_dict["compute_notebooks"]["atm"]["ADF"]["external_tool"][
-            "regridded_output"
-        ]:
-            a_dict["diag_cam_climo"]["cam_hist_loc"] = os.path.join(
-                a_dict["diag_cam_climo"]["cam_hist_loc"],
-                "regrid",
-            )
-            a_dict["diag_cam_climo"]["cam_ts_loc"] = os.path.join(
-                a_dict["diag_cam_climo"]["cam_ts_loc"],
-                "regrid",
-            )
-            a_dict["diag_cam_climo"]["cam_climo_loc"] = os.path.join(
-                a_dict["diag_cam_climo"]["cam_climo_loc"],
-                "regrid",
-            )
+        for i, test_case_name in enumerate(test_case_names):
+            regridded_output = c_dict["compute_notebooks"]["atm"]["ADF"][
+                "external_tool"
+            ]["regridded_output"][1:]
+
+            if regridded_output[i]:
+                a_dict["diag_cam_climo"]["cam_hist_loc"][i] = os.path.join(
+                    a_dict["diag_cam_climo"]["cam_hist_loc"][i],
+                    "regrid",
+                )
+                a_dict["diag_cam_climo"]["cam_ts_loc"][i] = os.path.join(
+                    a_dict["diag_cam_climo"]["cam_ts_loc"][i],
+                    "regrid",
+                )
+                a_dict["diag_cam_climo"]["cam_climo_loc"][i] = os.path.join(
+                    a_dict["diag_cam_climo"]["cam_climo_loc"][i],
+                    "regrid",
+                )
     except:  # noqa: E722
         pass
     # TEST CASE START / END YEARS
-    test_case_cupid_ts_index = (
+    start_date = []
+    end_date = []
+    test_case_cupid_ts_index = [
         ts_case_names.index(test_case_name) if test_case_name in ts_case_names else None
-    )
-    start_date = get_date_from_ts(c_ts["atm"], "start_years", test_case_cupid_ts_index)
-    end_date = get_date_from_ts(c_ts["atm"], "end_years", test_case_cupid_ts_index)
+        for test_case_name in test_case_names
+    ]
+    for i, test_case_name in enumerate(test_case_names):
+        start_date.append(
+            get_date_from_ts(c_ts["atm"], "start_years", test_case_cupid_ts_index[i]),
+        )
+    for i, test_case_name in enumerate(test_case_names):
+        end_date.append(
+            get_date_from_ts(c_ts["atm"], "end_years", test_case_cupid_ts_index[i]),
+        )
+
     a_dict["diag_cam_climo"]["start_year"] = start_date
     a_dict["diag_cam_climo"]["end_year"] = end_date
 
     # Set values for BASELINE
-    base_case_cupid_ts_index = (
-        ts_case_names.index(base_case_name) if base_case_name in ts_case_names else None
-    )
+    if base_case_name:
+        base_case_cupid_ts_index = (
+            ts_case_names.index(base_case_name)
+            if base_case_name in ts_case_names
+            else None
+        )
 
-    base_case_output_dir = c_dict["global_params"].get(
-        "base_case_output_dir",
-        CESM_output_dir,
-    )
-    base_start_date = get_date_from_ts(
-        c_ts["atm"],
-        "start_years",
-        base_case_cupid_ts_index,
-    )
-    base_end_date = get_date_from_ts(
-        c_ts["atm"],
-        "end_years",
-        base_case_cupid_ts_index,
-    )
-    if base_start_date is None:
-        base_start_date = start_date
-    if base_end_date is None:
-        base_end_date = end_date
+        base_case_output_dir = c_dict["global_params"]["CESM_output_dir"][0]
+        base_start_date = get_date_from_ts(
+            c_ts["atm"],
+            "start_years",
+            base_case_cupid_ts_index,
+        )
+        base_end_date = get_date_from_ts(
+            c_ts["atm"],
+            "end_years",
+            base_case_cupid_ts_index,
+        )
+        if base_start_date is None:
+            base_start_date = start_date
+        if base_end_date is None:
+            base_end_date = end_date
 
-    a_dict["diag_cam_baseline_climo"]["cam_hist_loc"] = os.path.join(
-        base_case_output_dir,
-        base_case_name,
-        "atm",
-        "hist",
-    )
-    a_dict["diag_cam_baseline_climo"]["cam_ts_loc"] = os.path.join(
-        ts_dir,
-        base_case_name,
-        "atm",
-        "proc",
-        "tseries",
-    )
-    a_dict["diag_cam_baseline_climo"]["cam_climo_loc"] = os.path.join(
-        ts_dir,
-        base_case_name,
-        "atm",
-        "proc",
-        "climo",
-    )
-    try:
-        if c_dict["compute_notebooks"]["atm"]["ADF"]["external_tool"][
-            "base_regridded_output"
-        ]:
-            a_dict["diag_cam_baseline_climo"]["cam_hist_loc"] = os.path.join(
-                a_dict["diag_cam_baseline_climo"]["cam_hist_loc"],
-                "regrid",
-            )
-            a_dict["diag_cam_baseline_climo"]["cam_ts_loc"] = os.path.join(
-                a_dict["diag_cam_baseline_climo"]["cam_ts_loc"],
-                "regrid",
-            )
-            a_dict["diag_cam_baseline_climo"]["cam_climo_loc"] = os.path.join(
-                a_dict["diag_cam_baseline_climo"]["cam_climo_loc"],
-                "regrid",
-            )
-    except:  # noqa: E722
-        pass
-    a_dict["diag_cam_baseline_climo"]["start_year"] = base_start_date
-    a_dict["diag_cam_baseline_climo"]["end_year"] = base_end_date
+        a_dict["diag_cam_baseline_climo"]["cam_hist_loc"] = os.path.join(
+            base_case_output_dir,
+            base_case_name,
+            "atm",
+            "hist",
+        )
+        a_dict["diag_cam_baseline_climo"]["cam_ts_loc"] = os.path.join(
+            ts_dir[0],
+            base_case_name,
+            "atm",
+            "proc",
+            "tseries",
+        )
+        a_dict["diag_cam_baseline_climo"]["cam_climo_loc"] = os.path.join(
+            ts_dir[0],
+            base_case_name,
+            "atm",
+            "proc",
+            "climo",
+        )
+        try:
+            if c_dict["compute_notebooks"]["atm"]["ADF"]["external_tool"][
+                "regridded_output"
+            ][0]:
+                a_dict["diag_cam_baseline_climo"]["cam_hist_loc"] = os.path.join(
+                    a_dict["diag_cam_baseline_climo"]["cam_hist_loc"],
+                    "regrid",
+                )
+                a_dict["diag_cam_baseline_climo"]["cam_ts_loc"] = os.path.join(
+                    a_dict["diag_cam_baseline_climo"]["cam_ts_loc"],
+                    "regrid",
+                )
+                a_dict["diag_cam_baseline_climo"]["cam_climo_loc"] = os.path.join(
+                    a_dict["diag_cam_baseline_climo"]["cam_climo_loc"],
+                    "regrid",
+                )
+        except:  # noqa: E722
+            pass
+        a_dict["diag_cam_baseline_climo"]["start_year"] = base_start_date
+        a_dict["diag_cam_baseline_climo"]["end_year"] = base_end_date
 
     a_dict["diag_basic_info"]["num_procs"] = c_dict["timeseries"].get("num_procs", 1)
-    a_dict["diag_basic_info"]["cam_regrid_loc"] = os.path.join(
-        ts_dir,
-        base_case_name,
-        "atm",
-        "proc",
-        "tseries",
-        "regrid",
-    )  # This is where ADF will make "regrid" files
+    if base_case_name:
+        a_dict["diag_basic_info"]["cam_regrid_loc"] = os.path.join(
+            ts_dir[0],
+            base_case_name,
+            "atm",
+            "proc",
+            "tseries",
+            "regrid",
+        )  # This is where ADF will make "regrid" files
     a_dict["diag_basic_info"]["cam_diag_plot_loc"] = os.path.join(
         cupid_config_loc,
         "ADF_output",
@@ -253,13 +301,16 @@ def generate_adf_config(
         a_dict["diag_cvdp_info"] = cvdp_args
         a_dict["diag_cvdp_info"][
             "cvdp_codebase_loc"
-        ] = "../../externals/ADF/lib/externals/CVDP/"
+        ] = f"{adf_root}/lib/externals/CVDP/"
         # this is where CVDP code base lives in the ADF
 
         a_dict["diag_cvdp_info"]["cvdp_loc"] = os.path.join(
             cupid_config_loc,
             "CVDP_output/",
         )  # this is where CVDP will put plots, and "website" directory
+
+    if len(test_case_names) > 1:
+        a_dict["multi_case_plots"] = ["global_latlon_map", "polar_map", "zonal_mean"]
 
     with open(out_file, "w") as f:
         # Header of file is a comment logging provenance
@@ -280,6 +331,8 @@ def get_date_from_ts(data: dict, keyname: str, listindex: int, default=None):
         raise TypeError(f"first argument needs to be dict, got {type(data)}")
     if keyname not in data:
         raise KeyError(f"no entry {keyname} in the dict")
+    if listindex is None:
+        return default
     x = data[keyname]
     if isinstance(x, list):
         return x[listindex]

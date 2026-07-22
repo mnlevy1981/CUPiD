@@ -26,6 +26,7 @@ Options:
 from __future__ import annotations
 
 import os
+import shutil
 
 import click
 
@@ -116,12 +117,12 @@ def run_timeseries(
     dir_group = timeseries_params["dir_group"]
 
     # Get GID from group name
-    file_gid = os.shutil._get_gid(file_group)
+    file_gid = shutil._get_gid(file_group)
     if file_gid is None:
         file_gid = -1
         print(f"{file_group} is not a valid group on this machine")
         # Or raise an exception because file_group is not defined on this machine
-    dir_gid = os.shutil._get_gid(dir_group)
+    dir_gid = shutil._get_gid(dir_group)
     if dir_gid is None:
         print(f"{dir_group} is not a valid group on this machine")
         dir_gid = -1
@@ -143,66 +144,38 @@ def run_timeseries(
             #    if ts_dir is not specified, default to CESM_output_dir for either a list or a single value
 
             # if there is a list of case names, create a list of ts input directories
-            if isinstance(timeseries_params["case_name"], list):
+            if isinstance(global_params["case_names"], list):
                 ts_input_dirs = []
-                for cname in timeseries_params["case_name"]:
-                    # use base_case_output_dir for the base case if it exists
-                    if cname == global_params["base_case_name"] and "base_case_output_dir" in global_params:
-                        ts_input_dirs.append(global_params["base_case_output_dir"]+"/"+cname+f"/{component}/hist/")
-                    # otherwise use the CESM_output_dir as a default
-                    else:
-                        ts_input_dirs.append(global_params["CESM_output_dir"]+"/"+cname+f"/{component}/hist/")
-            # if there is not a list of case names, just use a single CESM_output_dir to find all of the ts_input_dirs
-            else:
-                ts_input_dirs = [
-                    global_params["CESM_output_dir"] + "/" +
-                    timeseries_params["case_name"] + f"/{component}/hist/",
-                ]
+                for cname, output_dir in zip(global_params["case_names"], global_params["CESM_output_dir"]):
+                    ts_input_dirs.append(output_dir+"/"+cname+f"/{component}/hist/")
 
             # if ts_dir is specified, use it to determine where the timeseries files should be written
             if "ts_dir" in global_params and global_params["ts_dir"] is not None:
                 # if there is a list of cases, create a list of timeseries output dirs
-                if isinstance(timeseries_params["case_name"], list):
+                if isinstance(global_params["case_names"], list):
                     ts_output_dirs = []
-                    for cname in timeseries_params["case_name"]:
+                    for cname, output_dir in zip(global_params["case_names"], global_params["ts_dir"]):
                         ts_output_dirs.append(
                             os.path.join(
-                                    global_params["ts_dir"],
+                                    output_dir,
                                     cname,
                                     f"{component}", "proc", "tseries",
                             ),
                         )
-                # if there is a single case, just create one output directory using ts_dir
-                else:
-                    ts_output_dirs = [
-                        os.path.join(
-                                global_params["ts_dir"],
-                                timeseries_params["case_name"],
-                                f"{component}", "proc", "tseries",
-                        ),
-                    ]
+
             # if ts_dir is not specified or is null, use CESM_output_dir to determine where to write timeseries files
             else:
                 # for a list of cases, use the CESM_output_dir to write a list of output ts directories
-                if isinstance(timeseries_params["case_name"], list):
+                if isinstance(global_params["case_names"], list):
                     ts_output_dirs = []
-                    for cname in timeseries_params["case_name"]:
+                    for cname, output_dir in zip(global_params["case_names"], global_params["CESM_output_dir"]):
                         ts_output_dirs.append(
                             os.path.join(
-                                    global_params["CESM_output_dir"],
-                                    cname,
-                                    f"{component}", "proc", "tseries",
+                                output_dir,
+                                cname,
+                                f"{component}", "proc", "tseries",
                             ),
                         )
-                # for a single case, use the CESM_output_dir to write a list of one ts output dir
-                else:
-                    ts_output_dirs = [
-                        os.path.join(
-                                global_params["CESM_output_dir"],
-                                timeseries_params["case_name"],
-                                f"{component}", "proc", "tseries",
-                        ),
-                    ]
             # -----
 
             # fmt: off
@@ -211,7 +184,7 @@ def run_timeseries(
                 component,
                 timeseries_params[component]["vars"],
                 timeseries_params[component]["derive_vars"],
-                timeseries_params["case_name"],
+                global_params["case_names"],
                 timeseries_params[component]["hist_str"],
                 ts_input_dirs,
                 ts_output_dirs,
@@ -230,7 +203,6 @@ def run_timeseries(
             )
             # fmt: on
             # pylint: enable=line-too-long
-
     return None
 
 

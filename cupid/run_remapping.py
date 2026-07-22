@@ -32,9 +32,11 @@ import click
 try:
     import remapping
     import util
+    import consistency_check
 except ModuleNotFoundError:
     import cupid.remapping as remapping
     import cupid.util as util
+    import cupid.consistency_check as consistency_check
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
@@ -72,8 +74,13 @@ def run_remapping(
         None
 
     """
+
     # fmt: on
     # pylint: enable=line-too-long
+
+    # ensure that config.yml is correctly formatted
+    consistency_check.validate_config(config_path)
+
     # Get control structure
     control = util.get_control_dict(config_path)
     util.setup_book(config_path)
@@ -118,46 +125,40 @@ def run_remapping(
 
     # general timeseries arguments for all components
     num_procs = timeseries_params["num_procs"]
-
     for component, comp_bool in component_options.items():
         if comp_bool and "mapping_file" in timeseries_params[component]:
-
-            if "ts_output_dir" in timeseries_params:
+            if "ts_output_dir" in timeseries_params and timeseries_params["ts_output_dir"] is not None:
                 if isinstance(timeseries_params["ts_output_dir"], list):
                     ts_output_dirs = []
-                    for ts_outdir in timeseries_params["ts_output_dir"]:
-                        ts_output_dirs.append([
-                            os.path.join(
-                                    ts_outdir,
-                                    f"{component}", "proc", "tseries",
-                            ),
-                        ])
-                else:
-                    ts_output_dirs = [
-                        os.path.join(
-                                timeseries_params["ts_output_dir"],
-                                f"{component}", "proc", "tseries",
-                        ),
-                    ]
-            else:
-                if isinstance(timeseries_params["case_name"], list):
-                    ts_output_dirs = []
-                    for cname in timeseries_params["case_name"]:
+                    for cname, ts_outdir in zip(global_params["case_names"], timeseries_params["ts_output_dir"]):
                         ts_output_dirs.append(
                             os.path.join(
-                                    global_params["CESM_output_dir"],
+                                    ts_outdir,
                                     cname,
                                     f"{component}", "proc", "tseries",
                             ),
                         )
-                else:
-                    ts_output_dirs = [
+                if isinstance(timeseries_params["ts_output_dir"], str):
+                    ts_output_dirs = []
+                    for cname in global_params["case_names"]:
+                        ts_output_dirs.append(
+                            os.path.join(
+                                    timeseries_params["ts_output_dir"],
+                                    cname,
+                                    f"{component}", "proc", "tseries",
+                            ),
+                        )
+            else:
+                ts_output_dirs = []
+                for cname, outut_dir in zip(global_params["case_names"], global_params["CESM_output_dir"]):
+                    ts_output_dirs.append(
                         os.path.join(
-                                global_params["CESM_output_dir"],
-                                timeseries_params["case_name"],
+                                outut_dir,
+                                cname,
                                 f"{component}", "proc", "tseries",
                         ),
-                    ]
+                    )
+
             # -----
 
             # fmt: off
@@ -165,7 +166,7 @@ def run_remapping(
             remapping.remap_time_series(
                 component,
                 timeseries_params[component]["vars"],
-                timeseries_params["case_name"],
+                global_params["case_names"],
                 timeseries_params[component]["hist_str"],
                 ts_output_dirs,
                 timeseries_params[component]["mapping_file"],

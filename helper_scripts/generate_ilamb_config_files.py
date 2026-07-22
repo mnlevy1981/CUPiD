@@ -89,40 +89,49 @@ def generate_ilamb_model_setup(cupid_config_loc, run_type):
 
     with open(os.path.join(cupid_config_loc, "config.yml")) as c:
         c_dict = yaml.safe_load(c)
-    case_output_dir = os.path.join(
-        c_dict["global_params"]["CESM_output_dir"],
-        c_dict["global_params"]["case_name"],
-    )
-    if "base_case_output_dir" in c_dict["global_params"]:
-        base_case_output_dir = os.path.join(
-            c_dict["global_params"]["base_case_output_dir"],
-            c_dict["global_params"]["base_case_name"],
-        )
-    else:
-        base_case_output_dir = os.path.join(
-            c_dict["global_params"]["CESM_output_dir"],
-            c_dict["global_params"]["base_case_name"],
-        )
 
-    shift_str_case = ""
-    shift_str_base_case = ""
-    if "BLT1850" in c_dict["global_params"]["case_name"]:
-        shift_str_case = ", 50, 2000"
-    if "BLT1850" in c_dict["global_params"]["base_case_name"]:
-        shift_str_base_case = ", 50, 2000"
+    case_names = c_dict["global_params"]["case_names"]
+    CESM_output_dir = c_dict["global_params"]["CESM_output_dir"]
+
+    case_dict = {}
+    for case_name, CESM_output_dir in zip(case_names, CESM_output_dir):
+        case_output_dir = os.path.join(
+            CESM_output_dir,
+            case_name,
+        )
+        shift_str_case = ""
+        if "1850" in case_name:
+            shift_str_case = ", 50, 2000"
+
+        case_dict[case_name] = {
+            "output_dir": case_output_dir,
+            "shift_str": shift_str_case,
+        }
+
     with open(os.path.join(cupid_config_loc, "model_setup.txt"), "w") as ms:
+
         ms.write(
             "# Model Name    , Location of Files                                                                    ,  Shift From,  Shift To\n",  # noqa: E501
         )
-        ms.write(
-            f"{c_dict['global_params']['case_name']}          , {case_output_dir}/lnd/hist/regrid/{shift_str_case}\n",
-        )
-        ms.write(
-            f"{c_dict['global_params']['base_case_name']}          , {base_case_output_dir}/lnd/hist/regrid/{shift_str_base_case}\n",  # noqa: E501
-        )
+
+        for case_name, case_data in case_dict.items():
+            case_output_dir = case_data["output_dir"]
+            shift_str_case = case_data["shift_str"]
+
+            ms.write(
+                f"{case_name}          , {case_output_dir}/lnd/hist/regrid/{shift_str_case}\n",
+            )
+
     print(f"wrote {os.path.join(cupid_config_loc, 'model_setup.txt')}")
     print(
-        f"WARNING: ILAMB requires regridded output to be in {base_case_output_dir}/lnd/hist/regrid/ directory.",
+        f"""WARNING: ILAMB requires regridded output to be in{CESM_output_dir[0]}/lnd/hist/regrid/ directory.
+            This might be done with something like the following:
+            for FILE in hist/*;
+              do fname=$(basename '$FILE');
+              ncremap -t 1 -P clm --sgs_frc=landfrac --sgs_msk=landmask -m
+                /glade/work/oleson/cesm2_3_alpha16b/cime/tools/mapping/gen_mapping_files/gen_ESMF_mapping_file/map_ne30pg3_TO_fv0.9x1.25_aave.231025.nc
+              '$FILE' 'hist/regrid/$fname';
+              done""",  # noqa: E501
     )
     print("You can now run ILAMB with the following commands:")
     print("If running via the CESM workflow, this will be run automatically.")
@@ -134,11 +143,28 @@ def generate_ilamb_model_setup(cupid_config_loc, run_type):
     print("export ILAMB_ROOT=../../ilamb_aux")
     if os.path.exists(os.path.join(cupid_config_loc, "ILAMB_output/")):
         print(
-            f"WARNING: directory {os.path.join(cupid_config_loc, 'ILAMB_output/')} exists; this may cause issues with runnign ILAMB. It is recommended to remove this directory prior to running the following command.",  # noqa: E501
+            f"WARNING: directory {os.path.join(cupid_config_loc, 'ILAMB_output/')} exists; this may cause issues with running ILAMB. It is recommended to remove this directory prior to running the following command.",  # noqa: E501
         )
-    print(
-        f"ilamb-run --config {os.path.join(cupid_config_loc, f'ilamb_nohoff_final_CLM_{run_type}.cfg')} --build_dir {os.path.join(cupid_config_loc, 'ILAMB_output/')} --df_errs {os.path.join(cupid_config_loc, 'ilamb_aux', 'quantiles_Whittaker_cmip5v6.parquet')} --define_regions {os.path.join(cupid_config_loc, 'ilamb_aux', 'DATA/regions/LandRegions.nc')} {os.path.join(cupid_config_loc, 'ilamb_aux', 'DATA/regions/Whittaker.nc')} --regions global --model_setup {os.path.join(cupid_config_loc, 'model_setup.txt')} --filter .clm2.h0.",  # noqa: E501
+
+    ilamb_run_opts = ["ilamb-run"]
+    ilamb_run_opts.append(
+        f"--config {os.path.join(cupid_config_loc, f'ilamb_nohoff_final_CLM_{run_type}.cfg')}",
     )
+    ilamb_run_opts.append(
+        f"--build_dir {os.path.join(cupid_config_loc, 'ILAMB_output/')}",
+    )
+    ilamb_run_opts.append(
+        f"--df_errs {os.path.join(cupid_config_loc, 'ilamb_aux', 'quantiles_Whittaker_cmip5v6.parquet')}",
+    )
+    ilamb_run_opts.append(
+        f"--define_regions {os.path.join(cupid_config_loc, 'ilamb_aux', 'DATA/regions/LandRegions.nc')} {os.path.join(cupid_config_loc, 'ilamb_aux', 'DATA/regions/Whittaker.nc')}",  # noqa: E501
+    )
+    ilamb_run_opts.append(
+        f"--regions global --model_setup {os.path.join(cupid_config_loc, 'model_setup.txt')}",
+    )
+    ilamb_run_opts.append("--filter .clm2.h0")
+    print(" ".join(ilamb_run_opts))
+
     print("---------")
 
 
