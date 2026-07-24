@@ -14,6 +14,14 @@
     <desc>Location of CUPiD for CESM workflow</desc>
   </entry>
 
+  <entry id="CUPID_OUTPUT_DIR">
+    <type>char</type>
+    <default_value>$DOUT_S_ROOT/cupid</default_value>
+    <group>cupid_config</group>
+    <file>env_postprocessing.xml</file>
+    <desc>Location of CUPiD output written by CESM workflow</desc>
+  </entry>
+
   <entry id="CUPID_GEN_TIMESERIES">
     <type>char</type>
     <valid_values>TRUE,FALSE</valid_values>
@@ -39,6 +47,15 @@
     <group>cupid_config</group>
     <file>env_postprocessing.xml</file>
     <desc>When TRUE, CUPiD will generate web pages from the diagnostic plots</desc>
+  </entry>
+
+  <entry id="CUPID_CMORIZATION">
+    <type>char</type>
+    <valid_values>TRUE,FALSE</valid_values>
+    <default_value>FALSE</default_value>
+    <group>cupid_config</group>
+    <file>env_postprocessing.xml</file>
+    <desc>When TRUE, CUPiD will run the CESM-specific Climate Model Output Rewriter (CMOR) tools</desc>
   </entry>
 
   <!-- Variables that configure conda environments used by CUPiD -->
@@ -169,7 +186,7 @@
 
   <entry id="CUPID_EXAMPLE">
     <type>char</type>
-    <default_value>key_metrics</default_value>
+    <default_value>intermediary_outputs</default_value>
     <group>cupid_analysis</group>
     <file>env_postprocessing.xml</file>
     <desc>Example to use in CUPiD analysis</desc>
