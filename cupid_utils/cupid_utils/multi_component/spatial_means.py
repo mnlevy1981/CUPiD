@@ -1,4 +1,5 @@
 from __future__ import annotations
+import os
 
 import xarray as xr
 import numpy as np
@@ -32,8 +33,8 @@ def compute_ann_mean(filepath, case, var, lat1=None, lat2=None, lon1=None, lon2=
         lon1 = starting longitude
         lon2 = ending longitude
     """
-    filename = filepath + case + "/" + case + "." + var + ".nc"
-    ds = xr.open_dataset(filename)
+    filename = os.path.join(filepath, f"{case}.*.{var}.*.nc")
+    ds = xr.open_mfdataset(filename)
 
     # Select the subset of data within the specified latitude and longitude ranges before calculating the annual mean
     ds_subset = ds.sel(lat=slice(lat1, lat2), lon=slice(lon1, lon2))
@@ -52,8 +53,8 @@ def compute_var_g_ann(filepath, case, var):
        case = casename
        var = variable name
     """
-    filename = filepath + case + "/" + case + "." + var + ".nc"
-    ds = xr.open_dataset(filename)
+    filename = os.path.join(filepath, f"{case}.*.{var}.*.nc")
+    ds = xr.open_mfdataset(filename)
     return global_mean(ds[var].groupby("time.year").mean())
 
 
@@ -125,8 +126,8 @@ def compute_var_zonal_ann(filepath, case, var):
        case = casename
        var = variable name
     """
-    filename = filepath + case + "/" + case + "." + var + ".nc"
-    ds = xr.open_dataset(filename)
+    filename = os.path.join(filepath, f"{case}.*.{var}.*.nc")
+    ds = xr.open_mfdataset(filename)
     ds.mean(["lon"])
     var_zonal_ann = ds[var].groupby("time.year").mean().mean(["lon"])
     return var_zonal_ann
