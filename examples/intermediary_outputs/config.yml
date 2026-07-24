@@ -126,17 +126,13 @@ compute_notebooks:
           none: {}
 
     atm:
-      Global_TS_RESTOM_tseries:
+      TimeSeriesPlots:
         parameter_groups:
           none:
             vars:
-              {'TS':'Global',
-               'RESTOM':'Global'}
-      Lab_Sea_ICEFRAC_tseries:
-        parameter_groups:
-          none:
-            vars:
-              {'ICEFRAC': 'Lab Sea'}
+              TS: Global
+              RESTOM: Global
+              ICEFRAC: Lab Sea
 
 ########### JUPYTER BOOK CONFIG ###########
 
