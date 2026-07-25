@@ -147,6 +147,7 @@ ${CUPID_ROOT}/helper_scripts/generate_cupid_config_for_cesm_case.py \
    --cupid-baseline-case ${CUPID_BASELINE_CASE} \
    --cupid-baseline-root ${CUPID_BASELINE_ROOT} \
    --cupid-ts-dir ${CUPID_TS_DIR} \
+   --cupid-regrid ${CUPID_REGRID} \
    --cupid-regrid-atm-file ${CUPID_REGRID_ATM_FILE} \
    --cupid-regrid-base-atm-file ${CUPID_REGRID_BASE_ATM_FILE} \
    --cupid-startdate ${CUPID_STARTDATE} \

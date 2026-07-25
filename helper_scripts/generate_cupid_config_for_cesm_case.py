@@ -39,6 +39,11 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
     help="Timeseries directory root; eg, if permission issues, use your scratch",
 )
 @click.option(
+    "--cupid-regrid",
+    default=False,
+    help="If True, time series files will be remapped",
+)
+@click.option(
     "--cupid-regrid-atm-file",
     default=None,
     help="Mapping file for regridding atmosphere time series (or None to leave on native grid)",
@@ -129,6 +134,7 @@ def generate_cupid_config(
     cupid_baseline_case,
     cupid_baseline_root,
     cupid_ts_dir,
+    cupid_regrid,
     cupid_regrid_atm_file,
     cupid_regrid_base_atm_file,
     cupid_startdate,
@@ -343,13 +349,19 @@ def generate_cupid_config(
                 cupid_start_year,
                 cupid_base_start_year,
             ]
+    if cupid_regrid_atm_file == "NONE":
+        cupid_regrid_atm_file = None
+    if cupid_regrid_base_atm_file == "NONE":
+        cupid_regrid_base_atm_file = None
     if "atm" in my_dict["timeseries"]:
-        if cupid_regrid_atm_file == "NONE":
-            cupid_regrid_atm_file = None
-        if cupid_regrid_base_atm_file == "NONE":
-            cupid_regrid_base_atm_file = None
         my_dict["timeseries"]["atm"]["mapping_file"] = [cupid_regrid_atm_file, cupid_regrid_base_atm_file]
 
+    if cupid_regrid:
+        if "Global_PSL_NMSE_compare_obs_lens" in my_dict["compute_notebooks"].get("atm", {}):
+            my_dict["compute_notebooks"]["atm"]["Global_PSL_NMSE_compare_obs_lens"]["parameter_groups"]["none"]["regridded_output"] = (cupid_regrid_atm_file is not None)
+        if "TimeSeriesPlots" in my_dict["compute_notebooks"].get("atm", {}): 
+            my_dict["compute_notebooks"]["atm"]["TimeSeriesPlots"]["parameter_groups"]["none"]["regridded_output"] = (cupid_regrid_atm_file is not None)
+            my_dict["compute_notebooks"]["atm"]["TimeSeriesPlots"]["parameter_groups"]["none"]["base_regridded_output"] = (cupid_regrid_base_atm_file is not None)
 
     if cupid_run_adf or cupid_run_ldf or cupid_run_ilamb:
         if "index" in my_dict["compute_notebooks"]["infrastructure"]:

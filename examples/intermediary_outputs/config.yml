@@ -129,6 +129,8 @@ compute_notebooks:
       TimeSeriesPlots:
         parameter_groups:
           none:
+            regridded_output: False
+            base_regridded_output: True
             vars:
               TS: Global
               RESTOM: Global
