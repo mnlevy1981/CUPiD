@@ -185,6 +185,22 @@
     <desc>Baseline case root to use in CUPiD analysis</desc>
   </entry>
 
+  <entry id="CUPID_NICKNAME">
+    <type>char</type>
+    <default_value>$CASE</default_value>
+    <group>cupid_analysis</group>
+    <file>env_postprocessing.xml</file>
+    <desc>Label to use in plot legends to describe case</desc>
+  </entry>
+
+  <entry id="CUPID_BASE_NICKNAME">
+    <type>char</type>
+    <default_value>NONE</default_value>
+    <group>cupid_analysis</group>
+    <file>env_postprocessing.xml</file>
+    <desc>Label to use in plot legends to describe baseline case</desc>
+  </entry>
+
   <entry id="CUPID_TS_DIR">
     <type>char</type>
     <default_value>$DOUT_S_ROOT/..</default_value>

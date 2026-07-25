@@ -81,6 +81,16 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
     help="Length of base case climatology for LDF",
 )
 @click.option(
+    "--case-nickname",
+    default=None,
+    help="Name to use for case in plot legends",
+)
+@click.option(
+    "--base-nickname",
+    default=None,
+    help="Name to use for case in plot legends",
+)
+@click.option(
     "--adf-output-root",
     default=None,
     help="Directory where ADF will be run (None => case root)",
@@ -129,6 +139,8 @@ def generate_cupid_config(
     cupid_climo_n_year,
     cupid_base_climo_end_year,
     cupid_base_climo_n_year,
+    case_nickname,
+    base_nickname,
     adf_output_root,
     ldf_output_root,
     ilamb_output_root,
@@ -293,6 +305,10 @@ def generate_cupid_config(
         int(cupid_base_climo_end_year) - int(cupid_base_climo_n_year) + 1
     )
     my_dict["global_params"]["base_climo_end_year"] = int(cupid_base_climo_end_year)
+    my_dict["global_params"]["case_nickname"] = case_nickname
+    if base_nickname != "NONE":
+        my_dict["global_params"]["base_case_nickname"] = base_nickname
+
     my_dict["timeseries"]["case_name"] = [case, cupid_baseline_case]
 
     for component in my_dict["timeseries"]:
