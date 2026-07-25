@@ -354,14 +354,26 @@ def generate_cupid_config(
     if cupid_regrid_base_atm_file == "NONE":
         cupid_regrid_base_atm_file = None
     if "atm" in my_dict["timeseries"]:
-        my_dict["timeseries"]["atm"]["mapping_file"] = [cupid_regrid_atm_file, cupid_regrid_base_atm_file]
+        my_dict["timeseries"]["atm"]["mapping_file"] = [
+            cupid_regrid_atm_file,
+            cupid_regrid_base_atm_file,
+        ]
 
     if cupid_regrid:
-        if "Global_PSL_NMSE_compare_obs_lens" in my_dict["compute_notebooks"].get("atm", {}):
-            my_dict["compute_notebooks"]["atm"]["Global_PSL_NMSE_compare_obs_lens"]["parameter_groups"]["none"]["regridded_output"] = (cupid_regrid_atm_file is not None)
-        if "TimeSeriesPlots" in my_dict["compute_notebooks"].get("atm", {}): 
-            my_dict["compute_notebooks"]["atm"]["TimeSeriesPlots"]["parameter_groups"]["none"]["regridded_output"] = (cupid_regrid_atm_file is not None)
-            my_dict["compute_notebooks"]["atm"]["TimeSeriesPlots"]["parameter_groups"]["none"]["base_regridded_output"] = (cupid_regrid_base_atm_file is not None)
+        if "Global_PSL_NMSE_compare_obs_lens" in my_dict["compute_notebooks"].get(
+            "atm",
+            {},
+        ):
+            my_dict["compute_notebooks"]["atm"]["Global_PSL_NMSE_compare_obs_lens"][
+                "parameter_groups"
+            ]["none"]["regridded_output"] = (cupid_regrid_atm_file is not None)
+        if "TimeSeriesPlots" in my_dict["compute_notebooks"].get("atm", {}):
+            my_dict["compute_notebooks"]["atm"]["TimeSeriesPlots"]["parameter_groups"][
+                "none"
+            ]["regridded_output"] = (cupid_regrid_atm_file is not None)
+            my_dict["compute_notebooks"]["atm"]["TimeSeriesPlots"]["parameter_groups"][
+                "none"
+            ]["base_regridded_output"] = (cupid_regrid_base_atm_file is not None)
 
     if cupid_run_adf or cupid_run_ldf or cupid_run_ilamb:
         if "index" in my_dict["compute_notebooks"]["infrastructure"]:
