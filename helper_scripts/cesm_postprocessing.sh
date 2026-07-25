@@ -15,6 +15,9 @@ CUPID_ROOT=`./xmlquery --value CUPID_ROOT`
 CUPID_OUTPUT_DIR=`./xmlquery --value CUPID_OUTPUT_DIR`
 CUPID_EXAMPLE=`./xmlquery --value CUPID_EXAMPLE`
 CUPID_GEN_TIMESERIES=`./xmlquery --value CUPID_GEN_TIMESERIES`
+CUPID_REGRID=`./xmlquery --value CUPID_REGRID`
+CUPID_REGRID_ATM_FILE=`./xmlquery --value CUPID_REGRID_ATM_FILE`
+CUPID_REGRID_BASE_ATM_FILE=`./xmlquery --value CUPID_REGRID_BASE_ATM_FILE`
 CUPID_GEN_DIAGNOSTICS=`./xmlquery --value CUPID_GEN_DIAGNOSTICS`
 CUPID_GEN_HTML=`./xmlquery --value CUPID_GEN_HTML`
 CUPID_CMORIZATION=`./xmlquery --value CUPID_CMORIZATION`
@@ -142,6 +145,8 @@ ${CUPID_ROOT}/helper_scripts/generate_cupid_config_for_cesm_case.py \
    --cupid-baseline-case ${CUPID_BASELINE_CASE} \
    --cupid-baseline-root ${CUPID_BASELINE_ROOT} \
    --cupid-ts-dir ${CUPID_TS_DIR} \
+   --cupid-regrid-atm-file ${CUPID_REGRID_ATM_FILE} \
+   --cupid-regrid-base-atm-file ${CUPID_REGRID_BASE_ATM_FILE} \
    --cupid-startdate ${CUPID_STARTDATE} \
    --cupid-enddate ${CUPID_ENDDATE} \
    --cupid-base-startdate ${CUPID_BASE_STARTDATE} \
@@ -184,6 +189,9 @@ fi
 # 5. Generate timeseries files
 if [ "${CUPID_GEN_TIMESERIES}" == "TRUE" ]; then
    ${CUPID_ROOT}/cupid/run_timeseries.py ${CUPID_FLAG_STRING}
+   if [ "${CUPID_REGRID}" == "TRUE" ]; then
+      ${CUPID_ROOT}/cupid/run_remapping.py ${CUPID_FLAG_STRING}
+   fi
 fi
 
 # 6. Run CMORIZATION

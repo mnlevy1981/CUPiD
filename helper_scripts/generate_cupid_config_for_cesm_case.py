@@ -38,6 +38,16 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
     default="/glade/campaign/cesm/development/cross-wg/diagnostic_framework/CESM_output_for_testing",
     help="Timeseries directory root; eg, if permission issues, use your scratch",
 )
+@click.option(
+    "--cupid-regrid-atm-file",
+    default=None,
+    help="Mapping file for regridding atmosphere time series (or None to leave on native grid)",
+)
+@click.option(
+    "--cupid-regrid-base-atm-file",
+    default=None,
+    help="Mapping file for regridding atmosphere time series from baseline (or None to leave on native grid)",
+)
 @click.option("--cupid-startdate", default="0001-01-01", help="CUPiD case start date")
 @click.option("--cupid-enddate", default="0101-01-01", help="CUPiD case end date")
 @click.option(
@@ -109,6 +119,8 @@ def generate_cupid_config(
     cupid_baseline_case,
     cupid_baseline_root,
     cupid_ts_dir,
+    cupid_regrid_atm_file,
+    cupid_regrid_base_atm_file,
     cupid_startdate,
     cupid_enddate,
     cupid_base_startdate,
@@ -315,6 +327,13 @@ def generate_cupid_config(
                 cupid_start_year,
                 cupid_base_start_year,
             ]
+    if "atm" in my_dict["timeseries"]:
+        if cupid_regrid_atm_file == "NONE":
+            cupid_regrid_atm_file = None
+        if cupid_regrid_base_atm_file == "NONE":
+            cupid_regrid_base_atm_file = None
+        my_dict["timeseries"]["atm"]["mapping_file"] = [cupid_regrid_atm_file, cupid_regrid_base_atm_file]
+
 
     if cupid_run_adf or cupid_run_ldf or cupid_run_ilamb:
         if "index" in my_dict["compute_notebooks"]["infrastructure"]:
