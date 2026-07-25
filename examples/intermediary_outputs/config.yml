@@ -156,9 +156,9 @@ book_toc:
     # Each chapter is the name of one of the notebooks that you executed
     # in compute_notebooks above, also without .ipynb
 
-    - caption: Diagnostic Output from Multiple Components
+    - caption: Diagnostic Output from the Atmosphere
       chapters:
-        - file: atm/Global_TS_ICEFRAC_RESTOM_tseries
+        - file: atm/TimeSeriesPlots
 
 
 #####################################
