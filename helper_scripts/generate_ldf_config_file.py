@@ -5,6 +5,7 @@ import os
 
 import click
 import yaml
+import cupid.util as util
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
@@ -28,8 +29,8 @@ def generate_ldf_config(cupid_config_loc, ldf_template, out_file):
     if not os.path.exists(os.path.join(cupid_config_loc, "config.yml")):
         raise KeyError(f"Can not find config.yml in {cupid_config_loc}")
 
-    with open(os.path.join(cupid_config_loc, "config.yml")) as c:
-        c_dict = yaml.safe_load(c)
+    c_dict = util.get_control_dict(os.path.join(cupid_config_loc, "config.yml"))
+
     with open(ldf_template, encoding="UTF-8") as a:
         a_dict = yaml.safe_load(a)
 
@@ -51,12 +52,11 @@ def generate_ldf_config(cupid_config_loc, ldf_template, out_file):
         "case_nicknames",
         test_case_name,
     )[-1]
-    # a_dict["diag_cam_climo"]["case_nickname"] = c_dict["global_params"]["case_names"][-1]
-    # a_dict["diag_cam_baseline_climo"]["case_nickname"] = c_dict["global_params"]["case_names"][0]
     a_dict["diag_cam_baseline_climo"]["case_nickname"] = c_dict["global_params"].get(
         "case_nicknames",
         base_case_name,
     )[0]
+
     # Set hist strings for test & baseline climo
     a_dict["diag_cam_climo"]["hist_str"] = c_dict["timeseries"]["lnd"]["hist_str"]
     a_dict["diag_cam_baseline_climo"]["hist_str"] = c_dict["timeseries"]["lnd"][
@@ -130,7 +130,7 @@ def generate_ldf_config(cupid_config_loc, ldf_template, out_file):
     )
 
     base_case_output_dir = os.path.join(
-        c_dict["global_params"].get("base_case_output_dir", base_case_DOUT),
+        base_case_DOUT,
         base_case_name,
     )
     base_start_date = get_date_from_ts(

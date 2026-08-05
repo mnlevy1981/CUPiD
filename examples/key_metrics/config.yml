@@ -49,10 +49,7 @@ global_params:
     - 'BLT1850_323'
     - 'BLT1850_328'
     - 'BLT1850_327'
-  CESM_output_dir:
-    - '/glade/campaign/cesm/development/cross-wg/diagnostic_framework/CESM_output_for_testing'
-    - '/glade/campaign/cesm/development/cross-wg/diagnostic_framework/CESM_output_for_testing'
-    - '/glade/campaign/cesm/development/cross-wg/diagnostic_framework/CESM_output_for_testing'
+  CESM_output_dir: '/glade/campaign/cesm/development/cross-wg/diagnostic_framework/CESM_output_for_testing'
   start_dates:
     - '0001-01-01'
     - '0001-01-01'
@@ -76,8 +73,8 @@ global_params:
 
 timeseries:
   num_procs: 8
-  ts_done: [False, False, False]
-  overwrite_ts: [False, False, False]
+  ts_done: False
+  overwrite_ts: False
   file_mode: 664
   dir_mode: 775
   file_group: cesm
@@ -90,7 +87,7 @@ timeseries:
     start_years: [1,1,1]
     end_years: [101,61,113]
     level: 'lev'
-    mapping_file: [Null, '/glade/campaign/cesm/cesmdata/inputdata/cpl/gridmaps/ne30pg3/map_ne30pg3_TO_fv0.9x1.25_blin.240826.nc']
+    mapping_file: [Null, Null, '/glade/campaign/cesm/cesmdata/inputdata/cpl/gridmaps/ne30pg3/map_ne30pg3_TO_fv0.9x1.25_blin.240826.nc']
 
 
   lnd:
@@ -151,16 +148,13 @@ compute_notebooks:
       Global_PSL_NMSE_compare_obs_lens:
         parameter_groups:
           none:
-            regridded_output:
-              - False # it looks like output is already on f09 grid, didn't need to regrid time-series file
-              - False
-              - False
+            regridded_output: False # it looks like output is already on f09 grid, didn't need to regrid time-series file
             validation_path: 'atm/analysis_datasets/fv0.9x1.25/seasonal_climatology/nmse_validation/PSL/'
       ADF:
         kernel_name: cupid-infrastructure
         parameter_groups:
           none:
-            adf_root: ../../examples/328v327v323/ADF_output/
+            adf_root: ../../examples/key_metrics/ADF_output/
             key_plots: ["Surface_Wind_Stress_ANN_LatLon_Vector_Mean.png", "PRECT_ANN_LatLon_Mean.png", "PS_DJF_SHPolar_Mean.png", "TaylorDiag_ANN_Special_Mean.png"]
             compare_obs: False
         external_tool:
@@ -172,17 +166,14 @@ compute_notebooks:
             obs_data_loc: /glade/campaign/cgd/amp/amwg/ADF_obs
           analysis_scripts: ["amwg_table"]
           diag_cvdp_info:
-            cvdp_run: True
+            cvdp_run: False
             cvdp_tar: False
-          regridded_output:
-            - False
-            - False
-            - False
+          regridded_output: False
       CVDP:
         kernel_name: cupid-infrastructure
         parameter_groups:
           none:
-            cvdp_root: ../../examples/328v327v323/CVDP_output/
+            cvdp_root: ../../examples/key_metrics/CVDP_output/
             key_plots: ["nino34.spatialcomp.djf1.png", "nino34.hov.elnino.png", "nino34.hov.lanina.png", "sst.stddev.djf.png", "nino34.monstddev.png"]
         external_tool:
           tool_name: 'CVDP'
@@ -201,10 +192,7 @@ compute_notebooks:
           none:
             hist_str: 'h0a'             # file tag, 'h0' or 'h0a'
             analysis_name: ""
-            grid_name:  # ROF grid name
-              - 'f09_f09_mosart'
-              - 'f09_f09_mosart'
-              - 'f09_f09_mosart'
+            grid_name:  'f09_f09_mosart' # ROF grid name
             climo_nyears: 10
             figureSave: False
       global_discharge_ocean_compare_obs:
@@ -212,10 +200,7 @@ compute_notebooks:
           none:
             hist_str: 'h0a'             # file tag, 'h0' or 'h0a'
             analysis_name: ""
-            grid_name:  # ROF grid name
-              - 'f09_f09_mosart'
-              - 'f09_f09_mosart'
-              - 'f09_f09_mosart'
+            grid_name: 'f09_f09_mosart' # ROF grid name
             climo_nyears: 10
             figureSave: False
 
@@ -238,7 +223,7 @@ compute_notebooks:
       ILAMB:
         parameter_groups:
           none:
-            ilamb_root: ../../examples/328v327v323/ILAMB_output
+            ilamb_root: ../../examples/key_metrics/ILAMB_output
             key_plots: ["EcosystemandCarbonCycle/GrossPrimaryProductivity/FLUXCOM/*_global_bias.png", "EcosystemandCarbonCycle/LeafAreaIndex/AVHRR/*1_global_bias.png", "EcosystemandCarbonCycle/GlobalNetEcosystemCarbonBalance/GCP/*_global_accumulate.png", "HydrologyCycle/Permafrost/Brown2002/*_global_bias.png"]
             print_table: True
         external_tool:
@@ -248,7 +233,7 @@ compute_notebooks:
         kernel_name: cupid-infrastructure
         parameter_groups:
           none:
-            ldf_root: ../../examples/328v327v323/LDF_output/
+            ldf_root: ../../examples/key_metrics/LDF_output/
             key_plots: ["GPP_ANN_LatLon_Mean.png",
                         "ELAI_ANN_LatLon_Mean.png",
                         "TOTECOSYSC_GlobalMean_ANN_TimeSeries_Mean.png",
@@ -264,10 +249,7 @@ compute_notebooks:
                               "global_mean_timeseries_lnd", "regional_climatology",
                               "regional_timeseries"]
           analysis_scripts: ["lmwg_table"]
-          regridded_output:
-            - False
-            - False
-            - False
+          regridded_output: False
           region_list: ["Global","N Hemisphere Land","S Hemisphere Land","Polar",
                         "Alaskan Arctic","Canadian Arctic",'Russian Arctic','Greenland',
                         "Alaska",'Northwest Canada','Central Canada','Eastern Canada','Northern Europe','Western Siberia','Eastern Siberia',
