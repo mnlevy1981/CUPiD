@@ -311,9 +311,14 @@ def generate_cupid_config(
         int(cupid_base_climo_end_year) - int(cupid_base_climo_n_year) + 1
     )
     my_dict["global_params"]["base_climo_end_year"] = int(cupid_base_climo_end_year)
-    my_dict["global_params"]["case_nickname"] = case_nickname
+    if case_nickname != "NONE":
+        my_dict["global_params"]["case_nickname"] = case_nickname
+    else:
+        my_dict["global_params"]["case_nickname"] = case
     if base_nickname != "NONE":
         my_dict["global_params"]["base_case_nickname"] = base_nickname
+    else:
+        my_dict["global_params"]["base_case_nickname"] = cupid_baseline_case
 
     my_dict["timeseries"]["case_name"] = [case, cupid_baseline_case]
 
