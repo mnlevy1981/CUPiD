@@ -6,6 +6,8 @@ import shutil
 
 import click
 import yaml
+import cupid.util as util
+
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
@@ -42,8 +44,7 @@ def generate_ilamb_cfg(cupid_config_loc, run_type, cupid_root=None):
     """Create ILAMB config file with correct paths to ILAMB auxiliary files
     given information from CUPiD configuration file"""
 
-    with open(os.path.join(cupid_config_loc, "config.yml")) as c:
-        c_dict = yaml.safe_load(c)
+    c_dict = util.get_control_dict(os.path.join(cupid_config_loc, "config.yml"))
     if "ILAMB" in c_dict["compute_notebooks"]["lnd"].keys():
         ilamb_config_data_loc = c_dict["compute_notebooks"]["lnd"]["ILAMB"][
             "external_tool"
