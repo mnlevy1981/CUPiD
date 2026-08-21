@@ -41,10 +41,10 @@ computation_config:
 # All parameters under global_params get passed to all the notebooks
 
 global_params: # TODO: a lot of these params may be irrelevant/misleading for this notebook
-  case_name: 'b.e30_alpha07c_cesm.B1850C_LTso.ne30_t232_wgx3.232'
-  base_case_name: 'b.e30_alpha07c_cesm.B1850C_LTso.ne30_t232_wgx3.228'
-  case_nickname: 'BLT1850_232'
-  base_case_nickname: 'BLT1850_228'
+  case_name: 'b.e30_alpha08b.B1850C_LTso.ne30_t232_wgx3.327'
+  base_case_name: 'b.e30_alpha08b.B1850C_LTso.ne30_t232_wgx3.323'
+  case_nickname: '327'
+  base_case_nickname: '323'
   CESM_output_dir: /glade/campaign/cesm/development/cross-wg/diagnostic_framework/CESM_output_for_testing
   ts_dir: null # If this is set to null, it will default to CESM_output_dir; if you don't have permissions to write to CESM_output_dir, you can specify a directory such as your scratch arcive directory
   lc_kwargs:
@@ -54,7 +54,7 @@ timeseries: # TODO: will need to update timeseries portion of this in next PR
   num_procs: 8
   ts_done: [False, False]
   overwrite_ts: [False, False]
-  case_name: ['b.e30_alpha07c_cesm.B1850C_LTso.ne30_t232_wgx3.232', 'b.e30_alpha07c_cesm.B1850C_LTso.ne30_t232_wgx3.228']
+  case_name: ['b.e30_alpha08b.B1850C_LTso.ne30_t232_wgx3.327', 'b.e30_alpha08b.B1850C_LTso.ne30_t232_wgx3.323']
   file_mode: 664
   dir_mode: 775
   file_group: cesm
@@ -66,9 +66,9 @@ timeseries: # TODO: will need to update timeseries portion of this in next PR
         RESTOM: ['FLNT','FSNT']
     hist_str: 'cam.h0a'
     start_years: [1,1]
-    end_years: [21,45]
+    end_years: [113,100]
     level: 'lev'
-    mapping_file: [Null, '/glade/campaign/cesm/cesmdata/inputdata/cpl/gridmaps/ne30pg3/map_ne30pg3_TO_fv0.9x1.25_blin.240826.nc']
+    mapping_file: [Null, Null]
 
 
   lnd:
@@ -130,7 +130,7 @@ compute_notebooks:
         parameter_groups:
           none:
             regridded_output: False
-            base_regridded_output: True
+            base_regridded_output: False
             vars:
               TS: Global
               RESTOM: Global
