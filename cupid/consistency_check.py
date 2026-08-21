@@ -13,8 +13,11 @@ global_required_lists = [
     "case_nicknames",
 ]
 
-global_list_or_str = [
+global_required_list_or_str = [
     "CESM_output_dir",
+]
+
+global_optional_list_or_str = [
     "start_dates",
     "end_dates",
     "climo_start_years",
@@ -59,6 +62,13 @@ compute_notebook_paths = [
         "none",
         "regridded_output",
     ),
+    (
+        "atm",
+        "TimeSeriesPlots",
+        "parameter_groups",
+        "none",
+        "regridded_output",
+    ),
     ("atm", "ADF", "external_tool", "regridded_output"),
     ("lnd", "LDF", "external_tool", "regridded_output"),
 ]
@@ -83,7 +93,7 @@ def check_consistency(control):
 
     expected_length = len(global_params["case_names"])
 
-    for param in global_list_or_str:
+    for param in global_required_list_or_str + global_optional_list_or_str:
         if param in global_params:
             global_params[param], ErrorMessage = check_type_and_length(
                 global_params[param],
@@ -91,7 +101,7 @@ def check_consistency(control):
             )
             if ErrorMessage:
                 raise TypeError(f"'{param}' in global_params: {ErrorMessage}")
-        else:
+        elif param in global_required_list_or_str:
             raise KeyError(f"Missing required key '{param}' in global_params section.")
 
     for component in component_list:
