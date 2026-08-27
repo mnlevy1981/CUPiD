@@ -18,6 +18,7 @@ global_required_list_or_str = [
 ]
 
 global_optional_list_or_str = [
+    "ts_dir",
     "start_dates",
     "end_dates",
     "climo_start_years",
@@ -181,7 +182,8 @@ def check_type_and_length(value, expected_length):
     elif isinstance(value, (str, bool, int)) or value is None:
         if value == "ts_dir" and value is None:
             value = None
-        value = [value] * expected_length
+        else:
+            value = [value] * expected_length
     else:
         ErrorMessage = f"Value must be a list, string, boolean, integer, or None, but got {type(value)}."
     return value, ErrorMessage
