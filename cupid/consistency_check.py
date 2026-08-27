@@ -179,11 +179,8 @@ def check_type_and_length(value, expected_length):
             ErrorMessage = f"Expected a list of length {expected_length}, but got a list of length {len(value)}."
         else:
             value = value
-    elif isinstance(value, (str, bool, int)) or value is None:
-        if value == "ts_dir" and value is None:
-            value = None
-        else:
-            value = [value] * expected_length
-    else:
+    elif isinstance(value, (str, bool, int)):
+        value = [value] * expected_length
+    elif value is not None:
         ErrorMessage = f"Value must be a list, string, boolean, integer, or None, but got {type(value)}."
     return value, ErrorMessage
