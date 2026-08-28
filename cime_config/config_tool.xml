@@ -128,6 +128,14 @@
     <desc>Number of years to use for climatology, eg for LDF</desc>
   </entry>
 
+  <entry id="CUPID_ALIGN_YEAR">
+    <type>integer</type>
+    <default_value>0</default_value>
+    <group>cupid_analysis</group>
+    <file>env_postprocessing.xml</file>
+    <desc>Number of years offset time axis when plotting global timeseries of CESM case</desc>
+  </entry>
+
   <entry id="CUPID_NICKNAME">
     <type>char</type>
     <default_value>$CASE</default_value>
@@ -158,6 +166,14 @@
     <group>cupid_comparison</group>
     <file>env_postprocessing.xml</file>
     <desc>Year to end comparison case climatologies, eg for LDF. Can be single value for all cases or comma-separated list.</desc>
+  </entry>
+
+  <entry id="CUPID_COMPARISON_ALIGN_YEARS">
+    <type>char</type>
+    <default_value>0</default_value>
+    <group>cupid_comparison</group>
+    <file>env_postprocessing.xml</file>
+    <desc>Number of years offset time axis when plotting global timeseries of comparison case(s)</desc>
   </entry>
 
   <entry id="CUPID_COMPARISON_CLIMO_N_YEARS">

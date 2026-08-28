@@ -34,6 +34,8 @@ CUPID_CLIMO_END_YEAR=`./xmlquery --value CUPID_CLIMO_END_YEAR`
 CUPID_COMPARISON_CLIMO_END_YEARS=`./xmlquery --value CUPID_COMPARISON_CLIMO_END_YEARS`
 CUPID_CLIMO_N_YEAR=`./xmlquery --value CUPID_CLIMO_N_YEAR`
 CUPID_COMPARISON_CLIMO_N_YEARS=`./xmlquery --value CUPID_COMPARISON_CLIMO_N_YEARS`
+CUPID_ALIGN_YEAR=`./xmlquery --value CUPID_ALIGN_YEAR`
+CUPID_COMPARISON_ALIGN_YEARS=`./xmlquery --value CUPID_COMPARISON_ALIGN_YEARS`
 CUPID_NICKNAME=`./xmlquery --value CUPID_NICKNAME`
 CUPID_COMPARISON_NICKNAMES=`./xmlquery --value CUPID_COMPARISON_NICKNAMES`
 CUPID_NTASKS=`./xmlquery --value CUPID_NTASKS`
@@ -151,6 +153,7 @@ if [ ${#CUPID_COMPARISON_CASES} -gt 0 ]; then
                            --cupid-comparison-climo-end-years ${CUPID_COMPARISON_CLIMO_END_YEARS} \
                            --cupid-comparison-climo-n-years ${CUPID_COMPARISON_CLIMO_N_YEARS} \
                            --cupid-comparison-startdates ${CUPID_COMPARISON_STARTDATES} \
+                           --cupid-comparison-align-years ${CUPID_COMPARISON_ALIGN_YEARS} \
                            --cupid-comparison-regrid-atm-files ${CUPID_COMPARISON_REGRID_ATM_FILES}"
 else
     CUPID_ENDDATES="${CUPID_ENDDATE}"
@@ -168,6 +171,7 @@ ${CUPID_ROOT}/helper_scripts/generate_cupid_config_for_cesm_case.py \
    --cupid-startdate ${CUPID_STARTDATE} \
    --cupid-enddates ${CUPID_ENDDATES} \
    --cupid-climo-end-year ${CUPID_CLIMO_END_YEAR} \
+   --cupid-align-year ${CUPID_ALIGN_YEAR} \
    --cupid-climo-n-year ${CUPID_CLIMO_N_YEAR} \
    --case-nickname ${CUPID_NICKNAME} \
    --adf-output-root ${PWD} \

@@ -51,6 +51,11 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
     help="Length of climatology for LDF",
 )
 @click.option(
+    "--cupid-align-year",
+    default="",
+    help="Number of years to offset time axis for global timeseries plots of CESM case",
+)
+@click.option(
     "--case-nickname",
     default="NONE",
     help="Name to use for case in plot legends",
@@ -117,6 +122,11 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
     help="Start date(s) of comparison case(s)",
 )
 @click.option(
+    "--cupid-comparison-align-years",
+    default="",
+    help="Number of years to offset time axis for global timeseries plots of comparison case(s)",
+)
+@click.option(
     "--cupid-comparison-regrid-atm-files",
     default="",
     help="Mapping file(s) for regridding comparison cases atmosphere time series (or None to leave on native grid)",
@@ -125,15 +135,16 @@ def generate_cupid_config(
     case_root,
     cesm_root,
     cupid_root,
+    case_nickname,
     cupid_example,
     cupid_ts_dir,
     cupid_regrid,
-    cupid_regrid_atm_file,
     cupid_startdate,
     cupid_enddates,
     cupid_climo_end_year,
     cupid_climo_n_year,
-    case_nickname,
+    cupid_align_year,
+    cupid_regrid_atm_file,
     adf_output_root,
     ldf_output_root,
     ilamb_output_root,
@@ -144,9 +155,10 @@ def generate_cupid_config(
     cupid_comparison_cases,
     cupid_comparison_roots,
     cupid_comparison_nicknames,
+    cupid_comparison_startdates,
     cupid_comparison_climo_end_years,
     cupid_comparison_climo_n_years,
-    cupid_comparison_startdates,
+    cupid_comparison_align_years,
     cupid_comparison_regrid_atm_files,
 ):
     """
@@ -294,6 +306,7 @@ def generate_cupid_config(
         cupid_comparison_regrid_atm_files = []
         cupid_comparison_climo_n_years = []
         cupid_comparison_climo_end_years = []
+        cupid_comparison_align_years = []
     else:
         cupid_comparison_roots = standardize_cupid_comparison_field(
             cupid_comparison_roots,
@@ -323,6 +336,11 @@ def generate_cupid_config(
         cupid_comparison_climo_end_years = standardize_cupid_comparison_field(
             cupid_comparison_climo_end_years,
             "cupid_comparison_climo_end_years",
+            num_cases,
+        )
+        cupid_comparison_align_years = standardize_cupid_comparison_field(
+            cupid_comparison_align_years,
+            "cupid_comparison_align_years",
             num_cases,
         )
     cupid_enddates = standardize_cupid_comparison_field(
@@ -416,6 +434,14 @@ def generate_cupid_config(
                 ]["regridded_output"].append(
                     regrid_atm_file is not None and cupid_regrid,
                 )
+
+    # TimeSeriesPlots also needs case_align_years
+    if "TimeSeriesPlots" in my_dict["compute_notebooks"].get("atm", {}):
+        my_dict["compute_notebooks"]["atm"]["TimeSeriesPlots"]["parameter_groups"][
+            "none"
+        ]["case_align_years"] = [int(cupid_align_year)] + [
+            int(align_year) for align_year in cupid_comparison_align_years
+        ]
 
     if cupid_run_adf or cupid_run_ldf or cupid_run_ilamb:
         if "index" in my_dict["compute_notebooks"]["infrastructure"]:

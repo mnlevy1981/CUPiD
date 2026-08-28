@@ -37,6 +37,7 @@ ts_list_or_str = [
 compute_notebooks_list_or_str = [
     "regridded_output",
     "grid_name",
+    "case_align_years",
 ]
 
 component_list = ["atm", "lnd", "ocn", "ice", "glc", "rof"]
@@ -69,6 +70,13 @@ compute_notebook_paths = [
         "parameter_groups",
         "none",
         "regridded_output",
+    ),
+    (
+        "atm",
+        "TimeSeriesPlots",
+        "parameter_groups",
+        "none",
+        "case_align_years",
     ),
     ("atm", "ADF", "external_tool", "regridded_output"),
     ("lnd", "LDF", "external_tool", "regridded_output"),
